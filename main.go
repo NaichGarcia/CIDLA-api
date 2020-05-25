@@ -5,13 +5,15 @@ import(
 	"encoding/json"
 	"log"
 	"net/http"
+	"fmt"
+	"strconv"
 	
 	"NaichGarcia/CIDLA-api/helper"
 	"NaichGarcia/CIDLA-api/models"
 	
 	"github.com/gorilla/mux"
 	"go.mongodb.org/mongo-driver/bson"
-	"go.mongodb.org/mongo-driver/bson/primitive"
+	//"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 func main() {
@@ -48,12 +50,12 @@ func getDummies(w http.ResponseWriter, r *http.Request) {
 		if err != nil {
 			log.Fatal(err)
 		}
-		dummies = append(dummies, dummy)
+		dummies = append(dummies, dummy)	
 	}
 	if err := cur.Err(); err != nil {
 		log.Fatal(err)
 	}
-	
+	fmt.Println()
 	json.NewEncoder(w).Encode(dummies)
 }
 
@@ -62,13 +64,13 @@ func getDummy(w http.ResponseWriter, r *http.Request) {
 	var dummy models.Dummy_data
 	var params = mux.Vars(r)
 	
-	id, _ := primitive.ObjectIDFromHex(params["id"])
+	//id, _ := primitive.ObjectIDFromHex(params["id"])
+	id, _ := strconv.ParseInt(params["id"], 10, 16)
+	fmt.Println(id)
 	
 	collection := helper.ConnectDB()
 	
-	filter := bson.M{"id": id}
-	err := collection.FindOne(context.TODO(), filter).Decode(&dummy)
-	
+	err := collection.FindOne(context.TODO(), bson.M{"id": id}).Decode(&dummy)
 	if err != nil {
 		helper.GetError(err, w)
 		return
